@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>井冈山非物质文化遗产</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .chat-height {
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-8">井冈山非物质文化遗产</h1>
+        <p class="text-center text-gray-600">欢迎了解井冈山的非物质文化遗产知识</p>
+    </div>
+
+    <!-- 聊天窗口 -->
+    <div id="chatWidget"
+        class="fixed bottom-6 right-6 z-50 w-80 bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+        <div id="chatHeader" class="bg-blue-600 text-white p-4 flex justify-between items-center cursor-pointer">
+            <div class="flex items-center">
+                <i class="fa fa-comments mr-2"></i>
+                <span>非遗知识问答</span>
+            </div>
+            <i id="chatToggle" class="fa fa-chevron-up"></i>
+        </div>
+
+        <div id="chatMessages" class="p-4 overflow-y-auto chat-height hidden">
+            <div class="mb-4">
+                <div class="flex items-start">
+                    <div class="bg-blue-100 rounded-full p-2 mr-3">
+                        <i class="fa fa-robot text-blue-600"></i>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg rounded-tl-none px-4 py-2 max-w-[80%]">
+                        您好！我是井冈山非遗知识助手，有什么关于井冈山非物质文化遗产的问题可以问我哦~
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chatInputArea" class="p-3 border-t hidden">
+            <div class="flex">
+                <input type="text" id="userInput" placeholder="请输入您的问题..."
+                    class="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                <button id="sendBtn" class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition">
+                    <i class="fa fa-paper-plane"></i>
+                </button>
+            </div>
+            <div id="errorMessage" class="text-red-500 text-xs mt-1 hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInputArea = document.getElementById('chatInputArea');
+        const chatToggle = document.getElementById('chatToggle');
+
+        function toggleChat() {
+            const isHidden = chatMessages.classList.contains('hidden');
+            if (isHidden) {
+                chatMessages.classList.remove('hidden');
+                chatInputArea.classList.remove('hidden');
+                chatToggle.classList.remove('fa-chevron-up');
+                chatToggle.classList.add('fa-chevron-down');
+            } else {
+                chatMessages.classList.add('hidden');
+                chatInputArea.classList.add('hidden');
+                chatToggle.classList.remove('fa-chevron-down');
+                chatToggle.classList.add('fa-chevron-up');
+            }
+        }
+
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-4';
+            if (isUser) {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start justify-end">
+                        <div class="bg-blue-600 text-white rounded-lg rounded-tr-none px-4 py-2 max-w-[80%]">
+                            ${text}
+                        </div>
+                        <div class="bg-gray-200 rounded-full p-2 ml-3">
+                            <i class="fa fa-user text-gray-600"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 rounded-full p-2 mr-3">
+                            <i class="fa fa-robot text-blue-600"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg rounded-tl-none px-4 py-2 max-w-[80%]">
+                            ${text}
+                        </div>
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            const errorElement = document.getElementById('errorMessage');
+
+            if (!message) {
+                errorElement.textContent = "请输入您的问题";
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            errorElement.classList.add('hidden');
+            addMessage(message, true);
+            userInput.value = '';            // ✅ 调用云端后端接口
+            fetch('https://jinggangshan-heritage-api.onrender.com/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: message })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.answer) {
+                        addMessage(data.answer, false);
+                    } else {
+                        addMessage("对不起，服务器没有返回回答。", false);
+                    }
+                })
+                .catch(error => {
+                    console.error("请求出错：", error);
+                    addMessage("出错了，请稍后再试。", false);
+                });
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        document.getElementById('chatHeader').addEventListener('click', toggleChat);
+    </script>
+</body>
+
+</html>

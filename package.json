@@ -1,0 +1,21 @@
+{
+  "name": "jinggangshan-heritage-api",
+  "version": "1.0.0",
+  "description": "井冈山非物质文化遗产知识问答API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "openai": "^4.20.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["api", "heritage", "jinggangshan"],
+  "author": "你的名字",
+  "license": "MIT"
+}
