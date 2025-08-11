@@ -13,7 +13,7 @@ app.use(express.static(__dirname));
 
 // 初始化OpenAI客户端（兼容通义千问）
 const openai = new OpenAI({
-  apiKey: 'sk-966a1eb7880d4e48a8adf19464549d60',
+  apiKey: process.env.QWEN_API_KEY || 'sk-966a1eb7880d4e48a8adf19464549d60',
   baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
 });
 
@@ -55,12 +55,6 @@ app.get('/', (req, res) => {
 
 // 启动服务器
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在端口 ${PORT}`);
-});
-
-// 适配云服务的端口配置
-const port = process.env.PORT || 3000;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
 });
