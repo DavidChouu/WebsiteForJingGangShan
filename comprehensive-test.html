@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整功能测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold mb-4">🎯 井冈山非遗系统部署测试</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button onclick="testServer()"
+                    class="bg-blue-500 text-white py-3 px-4 rounded hover:bg-blue-600 transition">
+                    🔗 测试服务器连接
+                </button>
+
+                <button onclick="testQuickChat()"
+                    class="bg-green-500 text-white py-3 px-4 rounded hover:bg-green-600 transition">
+                    💬 快速聊天测试
+                </button>
+
+                <button onclick="testFullChat()"
+                    class="bg-purple-500 text-white py-3 px-4 rounded hover:bg-purple-600 transition">
+                    🤖 完整对话测试
+                </button>
+
+                <button onclick="clearLog()"
+                    class="bg-gray-500 text-white py-3 px-4 rounded hover:bg-gray-600 transition">
+                    🗑️ 清空日志
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <input type="text" id="customQuestion" placeholder="输入自定义问题测试..."
+                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button onclick="testCustom()"
+                    class="mt-2 w-full bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 transition">
+                    ✨ 测试自定义问题
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">📋 测试日志</h2>
+            <div id="result" class="bg-gray-50 rounded p-4 min-h-[300px] font-mono text-sm overflow-y-auto max-h-96">
+                等待测试开始...<br>
+                <span class="text-blue-600">提示：如果首次连接较慢，是因为免费服务器需要启动时间（30-60秒）</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://websiteforjinggangshan.onrender.com';
+        const result = document.getElementById('result');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-700',
+                success: 'text-green-600',
+                error: 'text-red-600',
+                warning: 'text-yellow-600'
+            };
+            result.innerHTML += `<div class="${colors[type]}">[${timestamp}] ${message}</div>`;
+            result.scrollTop = result.scrollHeight;
+        }
+
+        function clearLog() {
+            result.innerHTML = '日志已清空<br>';
+        }
+
+        async function testServer() {
+            try {
+                log('🔄 正在测试服务器连接...', 'info');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
+
+                const response = await fetch(API_BASE + '/', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                const data = await response.text();
+                log(`✅ 服务器连接成功！`, 'success');
+                log(`📄 响应内容: ${data}`, 'info');
+                log(`🌐 状态码: ${response.status}`, 'info');
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    log('⏰ 连接超时（30秒）- 服务器可能正在启动中，请稍后重试', 'warning');
+                } else {
+                    log(`❌ 服务器连接失败: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testQuickChat() {
+            try {
+                log('🔄 正在测试聊天功能（简单问题）...', 'info');
+                const response = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: '你好' })
+                });
+
+                const data = await response.json();
+                if (data.answer) {
+                    log('✅ 聊天功能正常！', 'success');
+                    log(`🤖 AI回答: ${data.answer.substring(0, 100)}...`, 'info');
+                } else {
+                    log('⚠️ 收到响应但无回答内容', 'warning');
+                    log(`📄 响应数据: ${JSON.stringify(data)}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ 聊天功能异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFullChat() {
+            try {
+                log('🔄 正在测试完整对话（井冈山问题）...', 'info');
+                const response = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: '请介绍一下井冈山的非物质文化遗产有哪些？'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.answer) {
+                    log('✅ 完整对话测试成功！', 'success');
+                    log(`🎯 专业回答: ${data.answer}`, 'info');
+                } else {
+                    log('⚠️ 收到响应但无回答内容', 'warning');
+                }
+            } catch (error) {
+                log(`❌ 完整对话测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCustom() {
+            const question = document.getElementById('customQuestion').value.trim();
+            if (!question) {
+                log('⚠️ 请输入问题', 'warning');
+                return;
+            }
+
+            try {
+                log(`🔄 正在测试自定义问题: "${question}"`, 'info');
+                const response = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+                if (data.answer) {
+                    log('✅ 自定义问题测试成功！', 'success');
+                    log(`💭 回答: ${data.answer}`, 'info');
+                } else {
+                    log('⚠️ 收到响应但无回答内容', 'warning');
+                }
+            } catch (error) {
+                log(`❌ 自定义问题测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动测试连接
+        window.onload = function () {
+            log('🚀 页面加载完成，建议先点击"测试服务器连接"', 'info');
+        };
+    </script>
+</body>
+
+</html>

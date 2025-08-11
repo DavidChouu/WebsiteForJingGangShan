@@ -37,7 +37,7 @@
         async function testServer() {
             try {
                 updateResult('正在测试服务器连接...');
-                const response = await fetch('https://jinggangshan-heritage-api.onrender.com/');
+                const response = await fetch('https://websiteforjinggangshan.onrender.com/');
                 const data = await response.text();
                 updateResult('✅ 服务器连接成功: ' + data);
             } catch (error) {
@@ -48,7 +48,7 @@
         async function testChat() {
             try {
                 updateResult('正在测试聊天功能...');
-                const response = await fetch('https://jinggangshan-heritage-api.onrender.com/api/chat', {
+                const response = await fetch('https://websiteforjinggangshan.onrender.com/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question: '什么是井冈山非物质文化遗产？' })

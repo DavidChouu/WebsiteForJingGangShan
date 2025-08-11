@@ -1,0 +1,39 @@
+/* 行书字体样式文件 */
+
+/* 引入Google Fonts中的中文行书风格字体 */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+
+/* 图片下方标题的专用样式 */
+.image-title {
+    font-size: 36px !important;
+    /* 24px * 1.5 = 36px */
+    font-family: 'Ma Shan Zheng', 'Liu Jian Mao Cao', 'ZCOOL XiaoWei', 'STXingkai', '华文行楷', '方正行楷简体', cursive, serif !important;
+    text-align: center !important;
+    margin: 15px 0 !important;
+    text-indent: 0 !important;
+    color: #333 !important;
+    letter-spacing: 2px !important;
+}
+
+/* 备选字体方案 */
+.image-title-option1 {
+    font-family: 'Ma Shan Zheng', cursive !important;
+    /* 马善政楷书 - 优雅古典 */
+}
+
+.image-title-option2 {
+    font-family: 'Liu Jian Mao Cao', cursive !important;
+    /* 刘建毛草 - 飘逸洒脱 */
+}
+
+.image-title-option3 {
+    font-family: 'ZCOOL XiaoWei', serif !important;
+    /* 站酷小薇 - 清秀端庄 */
+}
+
+.image-title-option4 {
+    font-family: 'STXingkai', '华文行楷', '方正行楷简体', cursive !important;
+    /* 系统行楷 */
+}

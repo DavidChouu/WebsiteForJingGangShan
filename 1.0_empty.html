@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+  <!-- Google Fonts 中文草书字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap"
+    rel="stylesheet">
+  <!-- 中文网络字体服务 -->
+  <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai@1.1.8/style.css" rel="stylesheet" />
+  <title>井冈山非遗</title>
+  <style>
+    /* 毛泽东草书字体 - 本地字体 */
+    @font-face {
+      font-family: '毛泽东书法';
+      src: url('./fonts/maozedong-1.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: '金梅毛草书';
+      src: url('./fonts/JinMeiMaoCaoShu-1.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 增强草书效果的CSS */
+    @import url('https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap');
+
+    body {
+      background-color: #f9fafb;
+      /* 类似 bg-gray-50 */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
+    }
+
+    #chatWidget {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 50;
+      width: 320px;
+      background-color: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #chatHeader {
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #chatHeader i.fa-comments {
+      margin-right: 0.5rem;
+    }
+
+    #chatMessages {
+      padding: 1rem;
+      overflow-y: auto;
+      height: 300px;
+      display: none;
+    }
+
+    #chatInputArea {
+      padding: 0.75rem;
+      border-top: 1px solid #e5e7eb;
+      display: none;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-top-left-radius: 0.375rem;
+      border-bottom-left-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+
+    button#sendBtn {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-top-right-radius: 0.375rem;
+      border-bottom-right-radius: 0.375rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+    }
+
+    button#sendBtn:hover {
+      background-color: #1d4ed8;
+    }
+
+    .message-user {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+
+    .message-user .text {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem 0.5rem 0 0.5rem;
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    .message-user .icon {
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      padding: 0.5rem;
+      margin-left: 0.75rem;
+      color: #4b5563;
+      font-style: normal;
+    }
+
+    .message-bot {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .message-bot .icon {
+      background-color: #bfdbfe;
+      border-radius: 9999px;
+      padding: 0.5rem;
+      margin-right: 0.75rem;
+      color: #2563eb;
+      font-style: normal;
+    }
+
+    .message-bot .text {
+      background-color: #f3f4f6;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem 0.5rem 0.5rem 0;
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    #errorMessage {
+      color: #dc2626;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    /* 全局重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      background-color: rgba(255, 255, 255, 1);
+      /* 页面整体背景色（浅灰） */
+    }
+
+    /* 透明导航栏样式 */
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.3);
+      /* 黑色半透明背景 */
+      position: fixed;
+      /* 固定在顶部 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      /* 确保导航栏在最上层 */
+      transition: background-color 0.3s ease;
+      /* 平滑过渡效果 */
+    }
+
+    /* 导航容器 - 用于居中导航内容 */
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* 左侧图片样式 */
+    .nav-logo {
+      margin-right: auto;
+      /* 推到最左侧 */
+      padding: 8px 0;
+    }
+
+    .nav-logo img {
+      height: 40px;
+      /* 控制图片高度 */
+      width: auto;
+      /* 自动保持比例 */
+      object-fit: contain;
+    }
+
+    /* 导航链接列表 */
+    .nav-links {
+      list-style: none;
+      display: flex;
+      /* 水平排列 */
+      justify-content: flex-end;
+      /* 整体靠右 */
+      align-items: center;
+      /* 垂直居中（修正logo与文字对齐） */
+    }
+
+    /* 导航链接样式 */
+    .nav-links li {
+      position: relative;
+      margin: 0 10px;
+      /* 链接之间的间距 */
+    }
+
+    .nav-links a {
+      display: flex;
+      /* 让图片和文字在同一行 */
+      align-items: center;
+      /* 垂直居中对齐 */
+      color: #ffffff;
+      /* 白色文字 */
+      text-decoration: none;
+      padding: 15px 15px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      /* 过渡效果 */
+    }
+
+
+    /* 鼠标悬停效果 */
+    .nav-links a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #f8c711;
+    }
+
+    /* 页面背景区域 */
+    .hero-section {
+      background: url('https://picsum.photos/id/1015/1920/1080') no-repeat center center;
+      background-size: cover;
+      height: 100vh;
+      /* 占满整个视口高度 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      padding-top: 60px;
+      /* 为固定导航栏留出空间 */
+    }
+
+    /* 轮播区域容器 */
+    .carousel-section {
+      padding: 80px 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #d32f2f;
+      text-align: center;
+      font-family: "毛泽东书法", "金梅毛草书", "Zhi Mang Xing", "LXGW WenKai", "Long Cang", "Ma Shan Zheng", "STCaoshu", "华文草书", "方正行楷简体", "方正草书", cursive;
+      font-size: 3.5rem;
+      font-weight: bold;
+      font-style: italic;
+      text-shadow: 3px 3px 6px rgba(211, 47, 47, 0.4);
+      letter-spacing: 3px;
+      line-height: 1.1;
+      transform: rotate(-1deg) skew(-2deg, 0deg);
+      text-decoration: none;
+      -webkit-text-stroke: 1px rgba(211, 47, 47, 0.2);
+      text-rendering: optimizeLegibility;
+    }
+
+    /* 轮播容器样式 */
+    .carousel-container {
+      width: 100%;
+      max-width: 800px;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    /* 图片容器 */
+    .carousel {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: 100%;
+    }
+
+    /* 单张图片样式 */
+    .carousel-item {
+      flex: 0 0 33.333333%;
+      /* 每张占1/3宽度 */
+      padding: 0 10px;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+
+    .carousel-item img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .carousel-item p {
+      text-align: center;
+      margin-top: 10px;
+      color: #333;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* 导航按钮 */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .nav-btn:hover {
+      background-color: white;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+      left: 10px;
+    }
+
+    .next-btn {
+      right: 10px;
+    }
+
+    /* 指示器样式 */
+    .indicators {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #ddd;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .indicator.active {
+      background-color: #666;
+      transform: scale(1.3);
+    }
+
+    /* 页面内容区域 */
+    .content-section {
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #fff;
+      /* 内容区背景色（白色） */
+    }
+
+    /* 滚动时导航栏变化效果 */
+    .navbar.scrolled {
+      background-color: rgba(0, 0, 0, 0.8);
+      /* 滚动时更不透明 */
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 表格样式（无边框+宽高设置） */
+    .table-no-border {
+      border: none;
+      /* 隐藏表格外层边框 */
+      border-collapse: collapse;
+      /* 合并边框，避免残留线条 */
+      margin: 0 auto;
+      /* 表格水平居中 */
+      margin-bottom: 30px;
+      /* 表格底部间距 */
+    }
+
+    .table-no-border td {
+      border: none;
+      /* 隐藏单元格边框 */
+      padding: 15px;
+      /* 单元格内边距，让内容不拥挤 */
+    }
+
+    /* 表格宽高设置 */
+    .table-size-1 {
+      width: 90%;
+      /* 第一组表格宽度（占父容器90%） */
+      height: 250px;
+      /* 第一组表格总高度 */
+    }
+
+    .table-size-2 {
+      width: 80%;
+      /* 第二组表格宽度（占父容器80%） */
+      height: 200px;
+      /* 第二组表格总高度 */
+    }
+
+    /* 水平线样式 */
+    hr {
+      margin: 20px auto;
+      /* 上下间距+水平居中 */
+      width: 75%;
+      /* 水平线宽度 */
+      border: 1px solid #111;
+      /* 水平线颜色 */
+    }
+
+    /* 通用图片悬停放大效果 */
+    .zoom-img {
+      transition: transform 0.3s ease;
+    }
+
+    .zoom-img:hover {
+      transform: scale(1.05);
+    }
+
+    /* 小标题样式 */
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      font-style: italic;
+      color: #000;
+      margin-top: 10px;
+    }
+
+    /* 花体艺术字样式 */
+    .artistic-text {
+      font-family: "Times New Roman", "华文行楷", "STXingkai", "KaiTi", serif;
+      font-style: italic;
+      font-weight: bold;
+      background-color: #FFFFFF;
+      color: #000000;
+      padding: 15px;
+      border-radius: 8px;
+      line-height: 1.8;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    /* 浅蓝色花体艺术字样式 */
+    .artistic-text-light-blue {
+      font-family: "Times New Roman", "华文行楷", "STXingkai", "KaiTi", serif;
+      font-style: italic;
+      font-weight: bold;
+      background-color: #FFFFFF;
+      color: #2c3e50;
+      padding: 15px;
+      border-radius: 8px;
+      line-height: 1.8;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 8px rgba(135, 206, 235, 0.4);
+    }
+
+    /* ====== 底部导航栏样式 ====== */
+
+    /* 底部导航栏 - 新样式 */
+    .new-footer {
+      background-color: #2b2b2b;
+      /* 深灰背景 */
+      color: #fff;
+      /* 白色文字 */
+      padding: 40px 20px;
+      /* 上下内边距，左右留白 */
+      font-family: "Microsoft YaHei", sans-serif;
+      /* 保持字体统一 */
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      /* 内容居中限制宽度 */
+      margin: 0 auto;
+      /* 水平居中 */
+      display: flex;
+      /* 开启弹性布局 */
+      flex-wrap: wrap;
+      /* 小屏幕自动换行 */
+      justify-content: center;
+      /* 整体靠右对齐 */
+      gap: 300px;
+      /* 增加列与列之间的间距，让布局更宽松，可按需调整 */
+    }
+
+    .footer-col {
+      margin: 0;
+      /* 清除默认的列间距，靠gap控制 */
+    }
+
+    /* 快速链接内容横向排列 */
+    .footer-col:first-child ul {
+      /* 仅针对快速链接的ul */
+      display: flex;
+      flex-wrap: wrap;
+      /* 内容过多时自动换行 */
+      gap: 20px;
+      /* 链接之间的横向间距 */
+      margin-top: 5px;
+      /* 与标题保持适当距离 */
+    }
+
+    /* 移除列表项默认垂直间距（因改为横向排列） */
+    .footer-col:first-child ul li {
+      margin-bottom: 0;
+    }
+
+    .footer-col h3 {
+      color: #ffd700;
+      /* 标题用金色突出 */
+      margin-bottom: 15px;
+      /* 标题与内容间距 */
+      font-size: 18px;
+      /* 标题字号 */
+    }
+
+    .footer-col p {
+      line-height: 1.6;
+      /* 段落行高 */
+      margin-bottom: 8px;
+      /* 段落间距 */
+      color: #dcdcdc;
+      /* 浅灰文字更柔和 */
+    }
+
+    .footer-col ul {
+      list-style: none;
+      /* 去掉列表圆点 */
+      padding: 0;
+      /* 清除默认内边距 */
+    }
+
+    .footer-col ul li {
+      margin-bottom: 6px;
+      /* 列表项间距 */
+    }
+
+    .footer-col ul li a {
+      color: #fff;
+      /* 链接白色 */
+      text-decoration: none;
+      /* 去掉下划线 */
+      transition: color 0.3s;
+      /*  hover 过渡动画 */
+    }
+
+    .footer-col ul li a:hover {
+      color: #ffd700;
+      /*  hover 变金色 */
+    }
+
+
+    .footer {
+      background-color: #2b2b2b;
+      color: white;
+      padding: 30px 0;
+      margin-top: 40px;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      margin-top: 20px;
+      border-top: 1px solid #444;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .carousel-item {
+        flex: 0 0 50%;
+        /* 平板一次显示2张 */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .carousel-item {
+        flex: 0 0 100%;
+        /* 手机一次显示1张 */
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .nav-links li {
+        margin: 5px;
+      }
+
+      .nav-links a {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+
+      /* 响应式表格调整 */
+      .table-no-border {
+        width: 95%;
+        /* 小屏幕表格宽度 */
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 透明导航栏 -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+
+        <img src="../images/jinggang_title1.png" alt="" width="400" height="57" class="zoom-img">
+        <p><strong style="color: rgba(245,245,245,1)">井冈山非遗</strong>&nbsp;</p>
+        <li>
+          <a href="1.0_empty.html" target="new">网站首页</a>
+        </li>
+        <li>
+          <a href="../2.feiyixiangmu/1.0empty/nation/lion.html" target="new">非遗项目&nbsp;</a>
+        </li>
+        <li>
+          <a href="../3.wenlvditu/map.html">文旅地图&nbsp;</a>
+        </li>
+        <li>
+          <a href="../4.jinqidongtai/dongtai.html">近期动态&nbsp;</a>
+        </li>
+        <li>
+          <a href="../5.guanyuwomen/us.html">关于我们</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 主背景区域 -->
+
+  <!-- 轮播区域 --><img src="../微信图片_2025-08-09_143917_095.jpg" width="100%" height="500" alt="" class="zoom-img">
+
+  
+  
+  <h1>&nbsp;</h1>
+  <h1>走进井冈山&nbsp;</h1>
+  <hr>
+
+  <!-- 应用无边框和宽高的表格 -->
+  <table align="center" class="table-no-border table-size-1">
+    <tbody>
+      <tr style="text-align: center;">
+        <td><img src="井冈山介绍1.jpeg" width="250" height="221" alt="" class="zoom-img" /><br>
+          <span class="section-title">自然地理</span>
+        </td>
+        <td></td>
+        <td><img src="井冈山介绍2.jpeg" width="250" height="221" alt="" class="zoom-img" /><br>
+          <span class="section-title">民俗人文</span>
+        </td>
+        <td></td>
+        <td><img src="井冈山介绍3.jpeg" width="250" height="221" alt="" class="zoom-img" /><br>
+          <span class="section-title">红色历程</span>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="artistic-text">
+            井冈山位于中国罗霄山脉中段，呈东北—西南走向，地处北纬26°13′—26°52′，东经113°59′—114°18′。地势西南高、东北低，最高峰南风面海拔2120.4米。属亚热带季风气候，年均温14.2℃，年降水量1836.5毫米。地质上见证华南板块演化，生物多样性丰富，是珍稀物种的天然避难所。
+          </div>
+        </td>
+        <td></td>
+        <td>
+          <div class="artistic-text">
+            井冈山民俗文化底蕴深厚，客家民居以青瓦白墙、飞檐翘角为特色。传统节庆丰富，如春节吃豆腐猪蹄、端午插艾佩香囊、中秋放孔明灯等。婚俗遵循&ldquo;六礼&rdquo;，寿诞重&ldquo;一&rdquo;不重&ldquo;十&rdquo;。民间艺术有&ldquo;全堂狮灯&rdquo;和舞龙灯。饮食独具风味，如酿豆腐、&ldquo;井冈三石&rdquo;（石鸡、石鱼、石耳）。木雕工艺精湛，多用于建筑装饰，体现当地智慧。
+          </div>
+        </td>
+        <td></td>
+        <td>
+          <div class="artistic-text">
+            1927年10月，毛泽东率秋收起义部队上井冈山，创建中国第一个农村革命根据地。1928年4月，朱毛会师成立红四军，壮大革命力量。根据地推行土地革命，颁布《井冈山土地法》，并形成"十六字诀"游击战术。艰苦斗争中孕育出"坚定信念、艰苦奋斗"的井冈山精神。现保留大量革命遗址，成为重要红色教育基地。
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h1>非遗项目&nbsp;</h1>
+  <hr>
+
+  <section class="carousel-section" id="gallery">
+    <div class="carousel-container">
+      <div class="carousel">
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/province/rice_wine.html"><img src="红米酒酿成品.jpg"
+              width="800" height="800" alt="" class="zoom-img" /></a>
+          <p>红米酒</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/province/mountain_song.html"><img src="客家山歌3.jpg"
+              width="1280" height="853" alt="" class="zoom-img" /></a>
+          <p>客家山歌</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/nation/lion.html"><img src="全堂狮灯1.jpg"
+              width="1280" height="625" alt="" class="zoom-img" /></a>
+          <p>全堂狮灯</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/province/bamboo.html"><img src="竹编 竹篮.jpg"
+              width="1280" height="1180" alt="" class="zoom-img" /></a>
+          <p>竹编</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/city/wood.html"><img src="木雕图片2.jpg" width="1080"
+              height="608" alt="" class="zoom-img" /></a>
+          <p>木雕</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/city/tea_opera.html"><img src="采茶曲图片1.jpg"
+              width="1080" height="810" alt="" class="zoom-img" /></a>
+          <p>采茶曲</p>
+        </div>
+        <div class="carousel-item"><a href="../2.feiyixiangmu/1.0empty/city/china.html"><img src="制瓷图片2.jpg"
+              width="1280" height="853" alt="" class="zoom-img" /></a>
+          <p>手工制瓷</p>
+        </div>
+        <div class="carousel-item">
+          <a href="../2.feiyixiangmu/1.0empty/city/straw_shoes.html"><img src="草鞋编制2.jpg" width="1080" height="810"
+              alt="" class="zoom-img" /></a>
+          <p>草鞋编制</p>
+        </div>
+        <div class="carousel-item">
+          <a href="../2.feiyixiangmu/1.0empty/city/medicine.html"><img src="铁皮石斛.jpg" width="1920" height="810" alt=""
+              class="zoom-img" /></a>
+          <p>红军医药</p>
+        </div>
+      </div>
+
+      <button class="nav-btn prev-btn">❮</button>
+      <button class="nav-btn next-btn">❯</button>
+    </div>
+
+    <div class="indicators"></div>
+  </section>
+
+  <h1>近期动态&nbsp;</h1>
+  <hr>
+
+  <!-- 第二张无边框表格 -->
+  <table width="134%" align="center" class="table-no-border table-size-2">
+    <tbody>
+      <tr>
+        <td><a href="../4.jinqidongtai/fifth.html"><img src="微信图片_20250806174330.jpg" width="556" height="300" alt=""
+              class="zoom-img" /></a></td>
+        <td></td>
+        <td><a href="../4.jinqidongtai/second.html"><img src="640 (3).jpeg" width="556" height="300" alt=""
+              class="zoom-img" /></a></td>
+      </tr>
+      <tr>
+        <td>
+          <div>
+            <div>
+              <div>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+              </div>
+              <div>
+                <div>
+                  <div tabindex="0">
+                    <div></div>
+                  </div>
+                  <div tabindex="0">
+                    <div></div>
+                  </div>
+                  <div tabindex="0">
+                    <div></div>
+                  </div>
+                  <div tabindex="0">
+                    <div></div>
+                  </div>
+                </div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <br>
+              <p>&nbsp;</p>
+        </td>
+        <td></td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="chatWidget">
+    <div id="chatHeader">
+      <div class="flex items-center">
+        <i class="fa fa-comments"></i>
+        <span style="margin-left: 0.5rem;">非遗知识问答</span>
+      </div>
+      <i id="chatToggle" class="fa fa-chevron-up"></i>
+    </div>
+
+    <div id="chatMessages">
+      <div class="message-bot">
+        <div class="icon"><i class="fa fa-robot"></i></div>
+        <div class="text">
+          您好！我是井冈山非遗知识助手，有什么关于井冈山非物质文化遗产的问题可以问我哦~
+        </div>
+      </div>
+    </div>
+
+    <div id="chatInputArea">
+      <div class="flex">
+        <input type="text" id="userInput" placeholder="请输入您的问题..." />
+        <button id="sendBtn"><i class="fa fa-paper-plane"></i></button>
+      </div>
+      <div id="errorMessage"></div>
+    </div>
+  </div>
+
+  <!-- 底部导航栏 - 新结构，只保留中间和右侧 -->
+
+  <footer class="new-footer">
+    <div class="footer-inner">
+      <!-- 中间快速链接 -->
+      <div class="footer-col">
+        <h3>链接跳转</h3>
+        <ul>
+          <li><a href="1.0_empty.html" target="new">网站首页</a></li>
+          <li><a href="../2.feiyixiangmu/1.0empty/nation/lion.html" target="new">非遗项目</a></li>
+          <li><a href="../3.wenlvditu/map.html">文旅地图</a></li>
+          <li><a href="../4.jinqidongtai/dongtai.html">近期活动</a></li>
+          <li><a href="../5.guanyuwomen/us.html">关于我们</a></li>
+        </ul>
+      </div>
+      <!-- 右侧联系信息 -->
+      <div class="footer-col">
+        <h3>联系我们</h3>
+        <p>南京大学“井冈星火·数绘非遗”暑期社会实践团</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&nbsp;</p>
+    </div>
+  </footer>
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function () {
+      const navbar = document.getElementById('mainNavbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // 平滑滚动效果
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // 轮播功能
+    const carousel = document.querySelector('.carousel');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const indicatorsContainer = document.querySelector('.indicators');
+    const items = document.querySelectorAll('.carousel-item');
+
+    let currentIndex = 0;
+    const totalItems = items.length;
+    let visibleItems = 3;
+    let maxIndex;
+
+    function updateCarouselConfig() {
+      if (window.innerWidth < 480) {
+        visibleItems = 1;
+      } else if (window.innerWidth < 768) {
+        visibleItems = 2;
+      } else {
+        visibleItems = 3;
+      }
+
+      maxIndex = Math.max(0, totalItems - visibleItems);
+      generateIndicators();
+
+      if (currentIndex > maxIndex) {
+        currentIndex = maxIndex;
+        moveCarousel(currentIndex);
+      }
+    }
+
+    function generateIndicators() {
+      indicatorsContainer.innerHTML = '';
+      for (let i = 0; i <= maxIndex; i++) {
+        const indicator = document.createElement('div');
+        indicator.className = `indicator ${i === currentIndex ? 'active' : ''}`;
+        indicator.addEventListener('click', () => moveCarousel(i));
+        indicatorsContainer.appendChild(indicator);
+      }
+    }
+
+    function moveCarousel(index) {
+      if (index < 0) index = 0;
+      if (index > maxIndex) index = maxIndex;
+      currentIndex = index;
+      const translateValue = -currentIndex * (100 / visibleItems);
+      carousel.style.transform = `translateX(${translateValue}%)`;
+
+      document.querySelectorAll('.indicator').forEach((indicator, i) => {
+        indicator.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    nextBtn.addEventListener('click', () => moveCarousel(currentIndex + 1));
+    prevBtn.addEventListener('click', () => moveCarousel(currentIndex - 1));
+
+    let autoplayInterval = setInterval(() => moveCarousel(currentIndex + 1), 5000);
+    const carouselContainer = document.querySelector('.carousel-container');
+    carouselContainer.addEventListener('mouseenter', () => clearInterval(autoplayInterval));
+    carouselContainer.addEventListener('mouseleave', () => {
+      autoplayInterval = setInterval(() => moveCarousel(currentIndex + 1), 5000);
+    });
+
+    window.addEventListener('resize', updateCarouselConfig);
+    updateCarouselConfig();
+  </script>
+  <script>
+    const userInput = document.getElementById('userInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInputArea = document.getElementById('chatInputArea');
+    const chatToggle = document.getElementById('chatToggle');
+    const errorMessage = document.getElementById('errorMessage');
+    const chatHeader = document.getElementById('chatHeader');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function toggleChat() {
+      const isHidden = chatMessages.style.display === 'none' || !chatMessages.style.display;
+      if (isHidden) {
+        chatMessages.style.display = 'block';
+        chatInputArea.style.display = 'block';
+        chatToggle.classList.remove('fa-chevron-up');
+        chatToggle.classList.add('fa-chevron-down');
+      } else {
+        chatMessages.style.display = 'none';
+        chatInputArea.style.display = 'none';
+        chatToggle.classList.remove('fa-chevron-down');
+        chatToggle.classList.add('fa-chevron-up');
+      }
+    }
+
+    function addMessage(text, isUser) {
+      const messageDiv = document.createElement('div');
+      if (isUser) {
+        messageDiv.className = 'message-user';
+        messageDiv.innerHTML = `
+          <div class="text">${text}</div>
+          <div class="icon"><i class="fa fa-user"></i></div>
+        `;
+      } else {
+        messageDiv.className = 'message-bot';
+        messageDiv.innerHTML = `
+          <div class="icon"><i class="fa fa-robot"></i></div>
+          <div class="text">${text}</div>
+        `;
+      }
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendMessage() {
+      const message = userInput.value.trim();
+
+      if (!message) {
+        errorMessage.textContent = "请输入您的问题";
+        errorMessage.style.display = "block";
+        return;
+      }
+
+      errorMessage.style.display = "none";
+      addMessage(message, true);
+      userInput.value = '';
+
+      fetch('https://websiteforjinggangshan.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: message }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.answer) {
+            addMessage(data.answer, false);
+          } else {
+            addMessage("对不起，服务器没有返回回答。", false);
+          }
+        })
+        .catch(() => {
+          addMessage("出错了，请稍后再试。", false);
+        });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+    chatHeader.addEventListener('click', toggleChat);
+
+    // 默认展开
+    //toggleChat();
+  </script>
+
+</body>
+
+</html>
